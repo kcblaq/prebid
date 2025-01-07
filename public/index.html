@@ -1,107 +1,100 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Header bidding</title>
 
-    <!-- required scripts -->
-    <script
-      async
-      src="https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/not-for-prod/prebid.js"
-    ></script>
-    <script
-      async
-      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
-    ></script>
-  </head>
-  <body>
-    <!-- javascript -->
+    <script async src="https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/not-for-prod/prebid.js"></script>
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script>
-      var sizes = [[300, 250]];
-      var PREBID_TIMEOUT = 700;
+        // These will be undefined in the browser unless set server-side
+        const RUBI_ID = "<%= RUBIC_ID %>"; // Example using EJS template syntax
+        const RUBI_SITE_ID = "<%= SITE_ID %>";
+        const RUBI_ZONE_ID = "<%= RUBI_ZONE_ID %>";
+        const APP_NEXUS_ID= "<%= APP_NEXUS_ID %>";
+    </script>
+</head>
+<body>
 
-      var adUnits = [
-        {
-          code: "/19968336/header-bid-tag-1",
-          mediaTypes: {
-            banner: {
-              sizes: sizes,
+    <script>
+        var sizes = [
+            [300, 250]
+        ];
+        var PREBID_TIMEOUT = 700;
+
+        var adUnits = [{
+            code: '/19968336/header-bid-tag-1',
+            mediaTypes: {
+                banner: {
+                    sizes: sizes
+                }
             },
-          },
-          bids: [
-              {
-              bidder: 'appnexus',
-              params: {
-                placementId: 13144370
-              }
-            },
-            {
-              bidder: "rubicon",
-              params: {
-                accountId: "14062",
-                siteId: "70608",
-                zoneId: "335918",
-              },
-            },
-            // {
-            //   bidder: "aol",
-            //   params: {
-            //     placement: "23324932",
-            //     network: "5071.1",
-            //   },
-            // },
-          ],
-        },
-      ];
+            bids: [{
+                    bidder: 'appnexus',
+                    params: {
+                        placementId: APP_NEXUS_ID
+                    }
+                },
+                {
+                    bidder: "rubicon",
+                    params: {
+                        accountId: RUBI_ID,
+                        siteId: RUBI_SITE_ID,
+                        zoneId: RUBI_ZONE_ID,
+                    },
+                },
+            ]
+        }];
 
-      // ======== DO NOT EDIT BELOW THIS LINE =========== //
-      var googletag = googletag || {};
-      googletag.cmd = googletag.cmd || [];
-      googletag.cmd.push(function () {
-        googletag.pubads().disableInitialLoad();
-      });
-
-      var pbjs = pbjs || {};
-      pbjs.que = pbjs.que || [];
-
-      pbjs.que.push(function () {
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
-          bidsBackHandler: initAdserver,
-        });
-      });
-
-      function initAdserver() {
-        if (pbjs.initAdserverSet) return;
-        pbjs.initAdserverSet = true;
+        // ======== DO NOT EDIT BELOW THIS LINE =========== //
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
         googletag.cmd.push(function () {
-          pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync();
-          googletag.pubads().refresh();
+            googletag.pubads().disableInitialLoad();
         });
-      }
 
-      setTimeout(function () {
-        initAdserver();
-      }, PREBID_TIMEOUT);
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
 
-      googletag.cmd.push(function () {
-        googletag
-          .defineSlot("/19968336/header-bid-tag-1", sizes, "div-1")
-          .addService(googletag.pubads());
-        googletag.pubads().enableSingleRequest();
-        googletag.enableServices();
-      });
+        pbjs.que.push(function () {
+            pbjs.addAdUnits(adUnits);
+            pbjs.requestBids({
+                bidsBackHandler: initAdserver
+            });
+        });
+
+        function initAdserver() {
+            if (pbjs.initAdserverSet) return;
+            pbjs.initAdserverSet = true;
+            googletag.cmd.push(function () {
+                pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync();
+                googletag.pubads().refresh();
+            });
+        }
+
+        setTimeout(function () {
+            initAdserver();
+        }, PREBID_TIMEOUT);
+
+        googletag.cmd.push(function () {
+            googletag
+                .defineSlot('/19968336/header-bid-tag-1', sizes, 'div-1')
+                .addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
     </script>
 
-    <!-- html -->
     <h2>Ad Layout</h2>
     <div id="div-1" style="min-height: 250px">
-      <script type="text/javascript">
-        googletag.cmd.push(function () {
-          googletag.display("div-1");
-        });
-      </script>
+        <script type="text/javascript">
+            googletag.cmd.push(function () {
+                googletag.display("div-1");
+            });
+        </script>
     </div>
-  </body>
+</body>
+
 </html>
