@@ -1,0 +1,39 @@
+{
+  "name": "prebid",
+  "version": "1.0.0",
+  "description": "A header biding assessment ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --exec babel-node  src/index.js",
+    "dev": "nodemon --exec babel-node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kcblaq/prebid.git"
+  },
+  "keywords": [
+    "prebidjs",
+    "header",
+    "bidding",
+    "programmatic",
+    "ad"
+  ],
+  "author": "kcblaq",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kcblaq/prebid/issues"
+  },
+  "homepage": "https://github.com/kcblaq/prebid#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/node": "^7.26.0",
+    "@babel/preset-env": "^7.26.0"
+  }
+}
