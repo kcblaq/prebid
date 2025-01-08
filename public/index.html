@@ -73,6 +73,21 @@
       }
     </script>
 
+<script>
+  // Intersection Observer for Ad Loading for lazyloading
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        initAdserver();
+      }
+    });
+  }, { threshold: 0.5 }); // Observe when 50% or more of the element is visible
+
+  const adContainer = document.getElementById('div-1');
+  observer.observe(adContainer);
+</script>
+
+
     <script>
       gtag("js", new Date());
       gtag("config", "G-XXXXXXXXXX");
@@ -140,7 +155,7 @@
           sendAnalytics(bid, "bidResponse");
         }
       });
-      
+
       // ======== Dynamic Floor Pricing Logic ======== //
       pbjs.que.push(function () {
         pbjs.floors.set({
@@ -185,6 +200,18 @@
           },
         },
       });
+
+      // ======== Intersection Observer for Ad Loading for lazyloading ======== //
+      // const observer = new IntersectionObserver((entries) => {
+      //   entries.forEach((entry) => {
+      //     if (entry.isIntersecting) {
+      //       initAdserver();
+      //     }
+      //   });
+      // }, { threshold: 0.5 }); // Observe when 50% or more of the element is visible
+
+      // const adContainer = document.getElementById('div-1');
+      // observer.observe(adContainer);
 
       // ======== Bidder Error Handling ========
       pbjs.onEvent("bidWon", function (bid) {
