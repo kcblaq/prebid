@@ -3,6 +3,7 @@ const path = require('path');
 const app = express();
 const morgan = require('morgan');
 const bidRouter = require('./routes/bid-routes');
+const analyticsRouter = require('./routes/analytics');
 
 const PORT = process.env.PORT || 3000;
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(morgan("combined"));
 
 app.use('/rtb', bidRouter);
+app.use("/analytics",analyticsRouter );
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

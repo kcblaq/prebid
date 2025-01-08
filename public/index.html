@@ -1,100 +1,258 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Header bidding</title>
 
-    <script async src="https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/not-for-prod/prebid.js"></script>
-    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script>
-        // These will be undefined in the browser unless set server-side
-        const RUBI_ID = "<%= RUBIC_ID %>"; // Example using EJS template syntax
-        const RUBI_SITE_ID = "<%= SITE_ID %>";
-        const RUBI_ZONE_ID = "<%= RUBI_ZONE_ID %>";
-        const APP_NEXUS_ID= "<%= APP_NEXUS_ID %>";
-    </script>
-</head>
-<body>
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/not-for-prod/prebid.js"
+    ></script>
+    <script
+      async
+      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+    ></script>
 
     <script>
-        var sizes = [
-            [300, 250]
-        ];
-        var PREBID_TIMEOUT = 700;
+      function validateBid(bid) {
+        try {
+          if (!bid || typeof bid !== "object") {
+            return { isValid: false, message: "Bid is not an object." };
+          }
 
-        var adUnits = [{
-            code: '/19968336/header-bid-tag-1',
-            mediaTypes: {
-                banner: {
-                    sizes: sizes
-                }
-            },
-            bids: [{
-                    bidder: 'appnexus',
-                    params: {
-                        placementId: APP_NEXUS_ID
-                    }
-                },
-                {
-                    bidder: "rubicon",
-                    params: {
-                        accountId: RUBI_ID,
-                        siteId: RUBI_SITE_ID,
-                        zoneId: RUBI_ZONE_ID,
-                    },
-                },
-            ]
-        }];
-
-        // ======== DO NOT EDIT BELOW THIS LINE =========== //
-        var googletag = googletag || {};
-        googletag.cmd = googletag.cmd || [];
-        googletag.cmd.push(function () {
-            googletag.pubads().disableInitialLoad();
-        });
-
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
-
-        pbjs.que.push(function () {
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({
-                bidsBackHandler: initAdserver
-            });
-        });
-
-        function initAdserver() {
-            if (pbjs.initAdserverSet) return;
-            pbjs.initAdserverSet = true;
-            googletag.cmd.push(function () {
-                pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync();
-                googletag.pubads().refresh();
-            });
+          if (
+            !bid.hasOwnProperty("cpm") ||
+            typeof bid.cpm !== "number" ||
+            bid.cpm <= 0
+          ) {
+            return { isValid: false, message: "Missing or invalid CPM." };
+          }
+          if (
+            !bid.hasOwnProperty("ad") ||
+            typeof bid.ad !== "string" ||
+            bid.ad === ""
+          ) {
+            return {
+              isValid: false,
+              message: "Missing or invalid ADM (ad markup).",
+            };
+          }
+          if (!bid.hasOwnProperty("width") || typeof bid.width !== "number") {
+            return { isValid: false, message: "Missing or invalid width." };
+          }
+          if (!bid.hasOwnProperty("height") || typeof bid.height !== "number") {
+            return { isValid: false, message: "Missing or invalid height." };
+          }
+          if (
+            !bid.hasOwnProperty("bidderCode") ||
+            typeof bid.bidderCode !== "string"
+          ) {
+            return {
+              isValid: false,
+              message: "Missing or invalid bidderCode.",
+            };
+          }
+          if (
+            !bid.hasOwnProperty("adUnitCode") ||
+            typeof bid.adUnitCode !== "string"
+          ) {
+            return {
+              isValid: false,
+              message: "Missing or invalid adUnitCode.",
+            };
+          }
+          return { isValid: true, message: "Bid is valid." };
+        } catch (error) {
+          return {
+            isValid: false,
+            message: "An error occurred during validation: " + error.message,
+          };
         }
+      }
+    </script>
 
-        setTimeout(function () {
-            initAdserver();
-        }, PREBID_TIMEOUT);
+    <script>
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX");
+    </script>
 
-        googletag.cmd.push(function () {
-            googletag
-                .defineSlot('/19968336/header-bid-tag-1', sizes, 'div-1')
-                .addService(googletag.pubads());
-            googletag.pubads().enableSingleRequest();
-            googletag.enableServices();
+    <script>
+      const RUBI_ID = "<%= RUBIC_ID %>";
+      const RUBI_SITE_ID = "<%= SITE_ID %>";
+      const RUBI_ZONE_ID = "<%= RUBI_ZONE_ID %>";
+      const APP_NEXUS_ID = "<%= APP_NEXUS_ID %>";
+    </script>
+  </head>
+  <body>
+    <script>
+      var sizes = [[300, 250]];
+      var PREBID_TIMEOUT = 700;
+
+      var adUnits = [
+        {
+          code: "/19968336/header-bid-tag-1",
+          mediaTypes: {
+            banner: {
+              sizes: sizes,
+            },
+          },
+          bids: [
+            {
+              bidder: "appnexus",
+              params: {
+                placementId: APP_NEXUS_ID,
+              },
+            },
+            {
+              bidder: "rubicon",
+              params: {
+                accountId: RUBI_ID,
+                siteId: RUBI_SITE_ID,
+                zoneId: RUBI_ZONE_ID,
+              },
+            },
+          ],
+        },
+      ];
+
+      function sendAnalytics(bid, eventType) {
+        fetch("/analytics", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...bid, eventType }),
+        }).catch((error) =>
+          console.error("Error sending analytics data:", error)
+        );
+      }
+
+      // Bid Validatio
+      pbjs.onEvent("bidResponse", function (bid) {
+        const isValid = validateBid(bid);
+        if (!isValid) {
+          console.error(isValid.message);
+          pbjs.removeBidResponse(bid.adUnitCode, bid.bidderCode);
+          sendAnalytics(bid, "bidRejected");
+        } else {
+          sendAnalytics(bid, "bidResponse");
+        }
+      });
+      
+      // ======== Dynamic Floor Pricing Logic ======== //
+      pbjs.que.push(function () {
+        pbjs.floors.set({
+          data: {
+            currency: "USD",
+            floorProvider: "function",
+            values: function (bidRequest) {
+              let sizes = bidRequest.sizes;
+              let floorPrice = 0.25;
+
+              if (sizes.some((size) => size[0] === 728 && size[1] === 90)) {
+                floorPrice = 1.0;
+              } else if (
+                sizes.some((size) => size[0] === 300 && size[1] === 600)
+              ) {
+                floorPrice = 0.75;
+              }
+
+              return {
+                currency: "USD",
+                floor: floorPrice,
+              };
+            },
+          },
         });
+      });
+
+      pbjs.enableAnalytics({
+        provider: "ga",
+        options: {
+          trackerName: "headerbidding",
+          enableDistribution: true,
+          events: {
+            auctionInit: true,
+            auctionEnd: true,
+            bidWon: true,
+            bidTimeout: true,
+            bidRequested: true,
+            bidResponse: true,
+            noBid: true,
+            bidRejected: true,
+          },
+        },
+      });
+
+      // ======== Bidder Error Handling ========
+      pbjs.onEvent("bidWon", function (bid) {
+        console.log("Bid Won:", bid);
+        sendAnalytics(bid, "bidWon");
+      });
+
+      pbjs.onEvent("bidTimeout", function (bid) {
+        console.error("Bid Timeout:", bid);
+        sendAnalytics(bid, "bidTimeout");
+      });
+
+      pbjs.onEvent("bidRequested", function (bid) {
+        console.log("Bid Requested:", bid);
+        sendAnalytics(bid, "bidRequested");
+      });
+
+      pbjs.onEvent("bidResponse", function (bid) {
+        console.log("Bid Response:", bid);
+        sendAnalytics(bid, "bidResponse");
+      });
+      pbjs.onEvent("noBid", function (bid) {
+        console.error("No Bid:", bid);
+        sendAnalytics(bid, "noBid");
+      });
+
+      pbjs.onEvent("bidRejected", function (bid) {
+        console.error("Bid Rejected:", bid);
+        sendAnalytics(bid, "bidRejected");
+      });
+
+      // ======== Prebid.js Configuration ======== //
+      pbjs.que.push(function () {
+        pbjs.addAdUnits(adUnits);
+        pbjs.requestBids({
+          bidsBackHandler: initAdserver,
+        });
+      });
+
+      function initAdserver() {
+        if (pbjs.initAdserverSet) return;
+        pbjs.initAdserverSet = true;
+        googletag.cmd.push(function () {
+          pbjs.setTargetingForGPTAsync && pbjs.setTargetingForGPTAsync();
+          googletag.pubads().refresh();
+        });
+      }
+
+      setTimeout(function () {
+        initAdserver();
+      }, PREBID_TIMEOUT);
+
+      googletag.cmd.push(function () {
+        googletag
+          .defineSlot("/19968336/header-bid-tag-1", sizes, "div-1")
+          .addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+      });
     </script>
 
     <h2>Ad Layout</h2>
     <div id="div-1" style="min-height: 250px">
-        <script type="text/javascript">
-            googletag.cmd.push(function () {
-                googletag.display("div-1");
-            });
-        </script>
+      <script type="text/javascript">
+        googletag.cmd.push(function () {
+          googletag.display("div-1");
+        });
+      </script>
     </div>
-</body>
-
+  </body>
 </html>
